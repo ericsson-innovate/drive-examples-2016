@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Site Automation Client</title>
+<script type="text/javascript" src="../json/Sa.json"></script>
+<script type="text/javascript" src="../js/normal/Properties.js"></script>
+<script type="text/javascript" src="../js/normal/Promise.js"></script>
+<script type="text/javascript" src="../js/minified/DECSdk-Consolidate.js"></script>
+<style>
+input {
+  margin-right: 20px;
+  height: 60px;  
+  border-radius: 10px;
+  width: 200px;
+  color: white;
+  font-weight: bold;
+  background-color: gray;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+<section>
+	<div style="float: right;">
+		<input type="button" value=">> Shutdown <<" id="unsubscribe" onclick="unSubscribe()" />
+	</div>
+	<div style="margin: 4em;">
+		<input type="button" value="1. Open Garage Door" id="set" onclick="openGarageDoor()" />
+		<input type="button" value="2. Close Garage Door" id="set" onclick="closeGarageDoor()" />	
+	</div>
+	<div style="margin: 4em;">
+		<input type="button" value="3. Alarm Off" id="set" onclick="alarmOff()" />
+		<input type="button" value="4. Alarm On" id="set" onclick="alarmOn()" />			
+	</div>
+	<div style="margin: 4em;">
+		<input type="button" value="5. Light Off" id="set" onclick="lightOff()" />
+		<input type="button" value="6. Light On" id="set" onclick="lightOn()" />			
+	</div>
+	<div style="margin: 4em;">
+		<input type="button" value="7. FrontDoor Lock" id="set" onclick="doorLock()" />
+		<input type="button" value="8. FrontDoor UnLock" id="set" onclick="doorUnlock()" />			
+	</div>
+</section>
+<section>
+<div style="margin: 10px;" id="resultDiv">
+</div>
+</section>
+<script>
+init(function() {},["sa"], "digitalLifeApp")
+var sHandle = null;
+saSubscribe();
+
+var openGarage = [{"requestId" : "opengarage", "action":"set","type":"resource","id":"GC05003139","siteIds":["home"],"state":"on"}];
+var closeGarage = [{"requestId" : "closegarage", "action":"set","type":"resource","id":"GC05003139","siteIds":["home"],"state":"off"}];
+
+var alarmON = [{"action":"set","type":"resource","id":"AM00000004","siteIds":["home"],"state":"on","metas":[{"alarmMode":"away"}]}];
+var alarmOFF = [{"action":"set","type":"resource","id":"AM00000004","siteIds":["home"],"state":"off"}]
+
+var lightOFF = [{"action":"set","type":"resource","id":"LE00000029","siteIds":["home"],"state":"off"}];
+var lightON = [{"action":"set","type":"resource","id":"LE00000029","siteIds":["home"],"state":"on"}];
+
+var doorLOCK = [{"requestId": "lock", "action":"set","type":"resource","id":"DL00000027","siteIds":["home"],"state":"on"}];
+var doorUNLOCK = [{"requestId": "unlock", "action":"set","type":"resource","id":"DL00000027","siteIds":["home"],"state":"off"}];
+
+function openGarageDoor() {
+	drive.sa.requests.set(openGarage);
+}
+
+function closeGarageDoor() {
+	drive.sa.requests.set(closeGarage);
+}
+
+function alarmOn() {
+  drive.sa.requests.set(alarmON);	
+}
+
+function alarmOff() {
+	drive.sa.requests.set(alarmOFF);
+}
+
+function lightOff() {
+	drive.sa.requests.set(lightOFF);
+}
+
+function lightOn() {
+ drive.sa.requests.set(lightON);	
+}
+function doorLock() {
+	drive.sa.requests.set(doorLOCK);
+}
+
+function doorUnlock() {
+ drive.sa.requests.set(doorUNLOCK);	
+}
+	
+function saSubscribe() {
+	sHandle = drive.sa.results.subscribe(subscribeCallback);
+}
+function subscribeCallback(data) {
+	alert("Device Activated!");
+	console.log("::callback::", data);
+}
+
+function unSubscribe() {
+	drive.sa.results.unsubscribe(sHandle);
+}
+
+/* function subscribeCallback(data) {
+	alert("coming in subscribe");
+	var resultDiv = document.getElementById("resultDiv");
+	console.log("::callback::", data);
+	if (resultDiv!=null) {
+	    document.getElementById("resultDiv").innerHTML = JSON.stringify(data[0].sites[0].resourcetypes[0].resources);
+	}
+	//location.reload();
+}
+ */
+localStorage.clear();
+
+/* var alarmOptions = {"requestId" : "request-1"};
+var doorOptions  = {"requestId" : "request-2"};
+ */
+//drive.identity.subscribe(identityCallback);
+
+//drive.identity.users.subscribe(identityCallback, {"uid" : "ATTDriver49"});
+/* var updateRequest = [{"requestId" : "door-update-request", "action":"set","type":"resource","id":"DL00000027","siteIds":["home"],"state":"off"},
+                      {"requestId": "light-update-request", "action":"set","type":"resource","id":"PE00000002","siteIds":["home"],"state":"on"}
+                     ];
+                     
+var getAllDevice = [{"requestId":"get-all","action":"get","type":"resourcetype","id":"","siteIds":["home"]}];
+var getAlarmStatus = [{"requestId":"get-alarm","action":"get","type":"resource","id":"AM00000004","siteIds":["home"]}];
+var getGarageDoorStatus = [{"requestId":"get-garage-door","action":"get","type":"resource","id":"GC05006FAC","siteIds":["home"]}]
+var updateDoorLock = [{"requestId" : "door-update-request", "action":"set","type":"resource","id":"DL00000027","siteIds":["home"],"state":"on"}];
+var updateLight = [{"requestId" : "light-update-request", "action":"set","type":"resource","id":"LE00000029","siteIds":["home"],"state":"on"}];
+
+var unlockDoorREQ = [{"requestId" : "door-update-request", "action":"set","type":"resource","id":"DL00000027","siteIds":["home"],"state":"off"}];
+var switchLightOff = [{"requestId" : "light-update-request", "action":"set","type":"resource","id":"LE00000029","siteIds":["home"],"state":"off"}];
+
+function getDevices() {
+	drive.sa.requests.set(getAllDevice);
+}
+
+function lockDoor() {
+	drive.sa.requests.set(updateDoorLock);
+}
+function unlockDoor() {
+	drive.sa.requests.set(unlockDoorREQ);
+}
+
+function updateLights() {
+	drive.sa.requests.set(updateLight);
+}
+
+function switchOffLight() {
+	drive.sa.requests.set(switchLightOff);
+}
+ */
+</script>
+</body>
+</html>
